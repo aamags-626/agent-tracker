@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F7F7F7;
+      color: #222222;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    header {
+      background: white;
+      border-bottom: 1px solid #EBEBEB;
+      padding: 28px 40px 0;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #222222;
+    }
+
+    .header-title p {
+      font-size: 13px;
+      color: #717171;
+      margin-top: 3px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    /* ── Stat cards ── */
+    .stats-row {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid #EBEBEB;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 16px 0 16px;
+      text-align: center;
+      border-right: 1px solid #EBEBEB;
+      position: relative;
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #222222;
+      letter-spacing: -0.5px;
+    }
+
+    .stat-value.accent { color: #5B21B6; }
+
+    .stat-label {
+      font-size: 11px;
+      color: #717171;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      padding: 16px 40px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: white;
+      border-bottom: 1px solid #EBEBEB;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #717171;
+      pointer-events: none;
+    }
+
+    .search-wrap input {
+      padding: 9px 14px 9px 38px;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 24px;
+      font-size: 13px;
+      font-family: inherit;
+      width: 260px;
+      outline: none;
+      background: white;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: #222;
+    }
+
+    .search-wrap input:focus {
+      border-color: #222;
+      box-shadow: 0 0 0 2px rgba(34,34,34,0.08);
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    select.pill {
+      padding: 8px 14px;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 24px;
+      font-size: 13px;
+      font-family: inherit;
+      background: white;
+      outline: none;
+      cursor: pointer;
+      color: #222;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    select.pill:focus { border-color: #222; }
+    select.pill.active { border-color: #222; background-color: #F7F7F7; font-weight: 500; }
+
+    .spacer { flex: 1; }
+
+    .count-label {
+      font-size: 13px;
+      color: #717171;
+      font-weight: 500;
+    }
+
+    /* ── Buttons ── */
+    button {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      transition: all 0.15s;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: #5B21B6;
+      color: white;
+      border-radius: 8px;
+    }
+    .btn-primary:hover {
+      background: #4C1D95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(91,33,182,0.3);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-outline {
+      background: white;
+      color: #222;
+      border: 1.5px solid #DDDDDD;
+    }
+    .btn-outline:hover { border-color: #222; }
+
+    .btn-ghost-edit {
+      background: none;
+      color: #717171;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+
+    .btn-ghost-delete {
+      background: none;
+      color: #5B21B6;
+      border: 1.5px solid transparent;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+
+    .btn-ghost-edit:hover { border-color: #222; color: #222; }
+    .btn-ghost-delete:hover { border-color: #5B21B6; }
+
+    tr:hover .btn-ghost-edit,
+    tr:hover .btn-ghost-delete { opacity: 1; }
+
+    /* ── Table ── */
+    .table-wrap {
+      margin: 28px 40px;
+      overflow-x: auto;
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead th {
+      background: white;
+      padding: 13px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #717171;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      border-bottom: 1.5px solid #EBEBEB;
+      transition: color 0.15s;
+    }
+
+    thead th:hover { color: #222; }
+    thead th.sorted-asc::after { content: ' ↑'; color: #5B21B6; }
+    thead th.sorted-desc::after { content: ' ↓'; color: #5B21B6; }
+
+    tbody tr {
+      border-bottom: 1px solid #F7F7F7;
+      transition: background 0.12s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #FAFAFA; }
+
+    td {
+      padding: 14px 16px;
+      vertical-align: middle;
+      font-size: 13px;
+      color: #222;
+    }
+
+    /* Frozen agent column */
+    thead th.col-agent,
+    tbody td.col-agent {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: white;
+    }
+
+    thead th.col-agent { z-index: 3; }
+
+    tbody tr:hover td.col-agent { background: #FAFAFA; }
+
+    /* Subtle right border on sticky col */
+    thead th.col-agent::after,
+    tbody td.col-agent::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, #EBEBEB 20%, #EBEBEB 80%, transparent);
+    }
+
+    thead th.col-agent { position: sticky; left: 0; }
+
+    .agent-cell { min-width: 160px; }
+    .agent-name { font-weight: 600; font-size: 13px; color: #222; white-space: nowrap; }
+    .agent-agency { font-size: 11.5px; color: #717171; margin-top: 1px; white-space: nowrap; }
+
+    td.col-looking { min-width: 280px; max-width: 320px; font-size: 12.5px; color: #484848; line-height: 1.5; }
+    td.col-genres { max-width: 180px; font-size: 12.5px; color: #484848; }
+    td.col-writers { max-width: 160px; font-size: 12.5px; color: #717171; }
+    td.col-notes { min-width: 220px; max-width: 280px; font-size: 12.5px; color: #717171; }
+    td.col-reqs { max-width: 160px; font-size: 12.5px; }
+    td.col-method { white-space: nowrap; }
+    td.col-method a {
+      color: #5B21B6;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 12.5px;
+    }
+    td.col-method a:hover { text-decoration: underline; }
+    td.col-method span { font-size: 12.5px; color: #717171; }
+    .actions-cell { white-space: nowrap; display: flex; gap: 6px; align-items: center; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      letter-spacing: 0.1px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Fit */
+    .fit-high { background: #F0FFF4; color: #1A7F44; }
+    .fit-high .badge-dot { background: #1A7F44; }
+    .fit-medium { background: #FFF8E6; color: #B86A00; }
+    .fit-medium .badge-dot { background: #F59E0B; }
+    .fit-low { background: #F7F7F7; color: #717171; }
+    .fit-low .badge-dot { background: #BBBBBB; }
+
+    /* Status */
+    .status-not-contacted { background: #F7F7F7; color: #717171; }
+    .status-not-contacted .badge-dot { background: #BBBBBB; }
+    .status-queried { background: #EFF6FF; color: #2563EB; }
+    .status-queried .badge-dot { background: #3B82F6; }
+    .status-requested { background: #F0FFF4; color: #1A7F44; }
+    .status-requested .badge-dot { background: #22C55E; }
+    .status-rejected { background: #F5F3FF; color: #6D28D9; }
+    .status-rejected .badge-dot { background: #8B5CF6; }
+    .status-passed { background: #F5F3FF; color: #6D28D9; }
+    .status-passed .badge-dot { background: #8B5CF6; }
+
+    /* Timeframe */
+    .tf-wrap { display: flex; flex-direction: column; gap: 5px; white-space: nowrap; }
+    .tf-label { font-size: 12.5px; color: #484848; }
+    .window-in { background: #F0FFF4; color: #1A7F44; }
+    .window-in .badge-dot { background: #22C55E; }
+    .window-out { background: #FFF8E6; color: #B86A00; }
+    .window-out .badge-dot { background: #F59E0B; }
+
+    /* Prev queried */
+    .prev-yes { color: #B86A00; font-weight: 600; font-size: 12.5px; }
+    .prev-no { color: #BBBBBB; font-size: 12.5px; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: white;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-title { font-size: 16px; font-weight: 600; color: #222; margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; color: #717171; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 20px;
+      width: 660px;
+      max-width: 95vw;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.97) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid #EBEBEB;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: #F7F7F7;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #717171;
+      padding: 0;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+    .modal-close:hover { background: #EBEBEB; }
+
+    .modal-body { padding: 24px 32px; }
+
+    .form-section {
+      margin-bottom: 24px;
+    }
+
+    .form-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #717171;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #F7F7F7;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #484848;
+      letter-spacing: 0.1px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px 13px;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      background: white;
+      color: #222;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #222;
+      box-shadow: 0 0 0 3px rgba(34,34,34,0.07);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+    .modal-footer {
+      padding: 20px 32px 28px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid #EBEBEB;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-title">
+      <h1>Agent Tracker</h1>
+      <p>Get it published</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" onclick="exportCSV()">↓ Export CSV</button>
+      <button class="btn-primary" onclick="openModal()">+ Add Agent</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-label">Total Agents</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value accent" id="statHighFit">—</div>
+      <div class="stat-label">High Fit</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statQueried">—</div>
+      <div class="stat-label">Queried</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statRequested">—</div>
+      <div class="stat-label">Requested</div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="search" placeholder="Search agents, writers, keywords...">
+  </div>
+  <div class="filter-pills">
+    <select class="pill" id="fitFilter">
+      <option value="">All fit levels</option>
+      <option value="High">High fit</option>
+      <option value="Medium">Medium fit</option>
+      <option value="Low">Low fit</option>
+    </select>
+    <select class="pill" id="statusFilter">
+      <option value="">All statuses</option>
+      <option value="Not Contacted">Not Contacted</option>
+      <option value="Queried">Queried</option>
+      <option value="Requested">Requested</option>
+      <option value="Rejected">Rejected</option>
+      <option value="Passed">Passed</option>
+    </select>
+    <select class="pill" id="queriedFilter">
+      <option value="">Prev. queried?</option>
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
+  </div>
+  <span class="spacer"></span>
+  <span class="count-label" id="countLabel"></span>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th class="col-agent" onclick="sortBy('name')">Agent</th>
+        <th onclick="sortBy('fit')">Fit</th>
+        <th onclick="sortBy('lookingFor')">Looking For</th>
+        <th onclick="sortBy('genres')">Genres</th>
+        <th onclick="sortBy('requirements')">Requirements</th>
+        <th onclick="sortBy('timeframe')">Timeframe</th>
+        <th onclick="sortBy('writers')">Writers</th>
+        <th onclick="sortBy('notes')">Notes</th>
+        <th onclick="sortBy('previouslyQueried')">Prev.</th>
+        <th onclick="sortBy('status')">Status</th>
+        <th onclick="sortBy('dateQueried')">Queried On</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="empty-state" id="emptyState" style="display:none">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-title">No agents found</div>
+    <div class="empty-sub">Try adjusting your filters or search</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add Agent</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-section">
+        <div class="form-section-title">Agent Info</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Agent Name *</label>
+            <input type="text" id="f-name" placeholder="e.g. Claudia Ballard">
+          </div>
+          <div class="form-group">
+            <label>Agency</label>
+            <input type="text" id="f-agency" placeholder="e.g. WME">
+          </div>
+          <div class="form-group">
+            <label>Fit</label>
+            <select id="f-fit">
+              <option value="">—</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Genres / Focus</label>
+            <input type="text" id="f-genres" placeholder="e.g. Literary nonfiction / memoir">
+          </div>
+          <div class="form-group full">
+            <label>Writers Represented</label>
+            <input type="text" id="f-writers" placeholder="e.g. Jenny Offill, Lauren Groff">
+          </div>
+          <div class="form-group full">
+            <label>Looking For</label>
+            <textarea id="f-lookingFor" placeholder="e.g. Braided narratives, grief and family, formally inventive prose..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Submission Details</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Requirements</label>
+            <input type="text" id="f-requirements" placeholder="e.g. Query + first 50 pages">
+          </div>
+          <div class="form-group">
+            <label>Method</label>
+            <select id="f-method">
+              <option value="">—</option>
+              <option value="Email">Email</option>
+              <option value="Submissions portal">Submissions portal</option>
+              <option value="QueryManager">QueryManager</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Submission Page URL</label>
+            <input type="text" id="f-methodUrl" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Response Timeframe</label>
+            <input type="text" id="f-timeframe" placeholder="e.g. 8-10 weeks">
+          </div>
+          <div class="form-group">
+            <label>Previously Queried?</label>
+            <select id="f-previouslyQueried">
+              <option value="">—</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" style="margin-bottom:0">
+        <div class="form-section-title">Tracking</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Status</label>
+            <select id="f-status">
+              <option value="Not Contacted">Not Contacted</option>
+              <option value="Queried">Queried</option>
+              <option value="Requested">Requested</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Passed">Passed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date Queried</label>
+            <input type="date" id="f-dateQueried">
+          </div>
+          <div class="form-group full">
+            <label>Notes</label>
+            <textarea id="f-notes" placeholder="Any relevant notes..."></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveAgent()">Save Agent</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'agentTrackerData_v4';
+  let agents = [];
+  let editingId = null;
+  let sortCol = null;
+  let sortDir = 1;
+
+  const seed = [
+    {
+      name: 'Monika Woods', agency: 'Triangle House Literary', fit: 'High',
+      genres: 'Literary fiction & nonfiction / hybrid',
+      lookingFor: 'Experimental structures, body and identity, hybrid forms, grief and loss, writing that defies easy categorization',
+      requirements: 'Query + 10 pages (in email body)', method: 'Email', methodUrl: 'https://www.triangle.house/contact',
+      timeframe: '8-10 weeks', writers: 'Carmen Maria Machado, Maggie Nelson',
+      notes: 'Strong fit for hybrid/lyric work. Check current status — may be referral only.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'PJ Mark', agency: 'Janklow & Nesbit', fit: 'Medium',
+      genres: 'Literary fiction & nonfiction',
+      lookingFor: 'Distinctive voice, literary risk-taking, work that crosses genre boundaries, cultural criticism',
+      requirements: 'Query + sample pages to submissions@janklow.com', method: 'Email', methodUrl: 'https://www.janklowandnesbit.com/submissions',
+      timeframe: '8-12 weeks', writers: 'Ottessa Moshfegh, Hanif Abdurraqib',
+      notes: 'Represents literary voice-driven work', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Kate Johnson', agency: 'Wolf Literary Services', fit: 'High',
+      genres: 'Literary nonfiction / memoir / hybrid',
+      lookingFor: 'Fragmented memoir, lyric prose, stories about family and inheritance, unconventional families, formally inventive nonfiction, voices that uncover something off-kilter in the everyday',
+      requirements: 'Query + sample pages (fiction) or full proposal (nonfiction)', method: 'Email', methodUrl: 'https://wolflit.com/contact',
+      timeframe: '6-8 weeks', writers: 'Hilary Leichter',
+      notes: 'Known interest in hybrid memoir. Previously at Georges Borchardt.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Marya Spence', agency: 'Janklow & Nesbit', fit: 'Medium',
+      genres: 'Literary fiction & nonfiction',
+      lookingFor: 'Literary fiction and nonfiction with formal ambition, voice-driven essays, cultural criticism, strong authorial presence',
+      requirements: 'Query + synopsis + first 10 pages to submissions@janklow.com', method: 'Email', methodUrl: 'https://www.janklowandnesbit.com/submissions',
+      timeframe: '12 weeks', writers: '',
+      notes: 'Very literary. MFA NYU, former New Yorker.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Michelle Brower', agency: 'Trellis Literary Management', fit: 'High',
+      genres: 'Literary fiction & memoir',
+      lookingFor: 'Queer memoir, body politics, intimate family narratives, stories about illness and loss, hybrid and braided forms, personal story that illuminates a greater subject',
+      requirements: 'Query via QueryManager', method: 'QueryManager', methodUrl: 'https://www.trellisliterary.com/submissions',
+      timeframe: '8-12 weeks', writers: 'Kristen Arnett, Garrard Conley',
+      notes: 'Strong interest in queer and hybrid memoir', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Julie Stevenson', agency: 'Massie & McQuilkin', fit: 'High',
+      genres: 'Literary nonfiction / memoir / essays',
+      lookingFor: 'Lyric essay, fragmented narrative, memory and grief, work that lives between genres, powerful storytelling, authorial command of voice',
+      requirements: 'Query to julie@mmqalit.com', method: 'Email', methodUrl: 'https://www.mmqalit.com/contact/',
+      timeframe: '8-10 weeks', writers: '',
+      notes: 'MFA Sarah Lawrence, former Tin House editorial. Known for lyric and fragmented nonfiction.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Duvall Osteen', agency: 'Aragi Inc.', fit: 'Medium',
+      genres: 'Literary fiction & nonfiction',
+      lookingFor: 'Formally experimental work, autofiction, literary nonfiction with an essayistic sensibility, multigenerational storytelling, writers with a singular vision',
+      requirements: 'Query to queries@aragi.net, Attn: Duvall Osteen', method: 'Email', methodUrl: 'https://aragi.net/',
+      timeframe: 'Varies', writers: 'Elif Batuman, Rachel Cusk',
+      notes: 'Very literary / prestige list — accepts unsolicited', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Samantha Shea', agency: 'Georges Borchardt Inc.', fit: 'Medium',
+      genres: 'Literary fiction & nonfiction / essays',
+      lookingFor: 'Essays and hybrid nonfiction with literary ambition, work that meditates on memory and the body, literary fiction, cultural criticism',
+      requirements: 'Query + sample', method: 'Email', methodUrl: 'https://www.gbagency.com/',
+      timeframe: '8-12 weeks', writers: '',
+      notes: 'Strong backlist of hybrid and essayistic work. Verify current unsolicited policy before querying.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Sarah Levitt', agency: 'Aevitas Creative Management', fit: 'High',
+      genres: 'Literary nonfiction / hybrid / memoir',
+      lookingFor: '"Memoir plus" — half memoir, half something else; smart culture writing; work that defies easy categorization; voice-driven literary fiction with fresh characters',
+      requirements: 'Query via QueryManager', method: 'QueryManager', methodUrl: 'https://www.aevitascreative.com/contact',
+      timeframe: '3-4 months', writers: '',
+      notes: 'Specifically seeks "memoir plus" — perfect framing for hybrid work', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Natalie Edwards', agency: 'Trellis Literary Management', fit: 'High',
+      genres: 'Literary fiction & nonfiction / memoir',
+      lookingFor: 'Braided narratives of friendship and family, hybrid memoir, cultural criticism, narrative nonfiction; formerly at Janklow & Nesbit and Curtis Brown',
+      requirements: 'Query via QueryManager', method: 'QueryManager', methodUrl: 'https://www.trellisliterary.com/submissions',
+      timeframe: '12 weeks', writers: '',
+      notes: 'Boutique feel with strong literary pedigree. Pref: query one Trellis agent at a time.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Anna Sproul-Latimer', agency: 'Neon Literary', fit: 'Medium',
+      genres: 'Adult nonfiction / select literary fiction',
+      lookingFor: 'Buzzing, curious, slightly unhinged voices; cultural criticism; experimental nonfiction; hybrid work in the Trick Mirror vein; writers with infectious enthusiasm',
+      requirements: 'Query to anna@neonliterary.com', method: 'Email', methodUrl: 'https://neonliterary.com/team',
+      timeframe: 'Varies', writers: '',
+      notes: 'Boutique agency, highly selective. Runs a publishing Substack — worth reading before querying.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Sonali Chanchani', agency: 'Folio Literary Management', fit: 'Medium',
+      genres: 'Literary nonfiction / memoir / essays',
+      lookingFor: 'Braided narratives of friendship and family, memoir and essay collections that speak to larger social concerns, cultural criticism, writing that centers underrepresented voices',
+      requirements: 'Query + first 10 pages (pasted in email body) to sonali@foliolit.com', method: 'Email', methodUrl: 'https://www.foliolit.com/submit',
+      timeframe: '6-8 weeks', writers: '',
+      notes: 'Strong interest in braided structure and essay-driven memoir', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Claudia Ballard', agency: 'WME', fit: 'High',
+      genres: 'Literary fiction & nonfiction',
+      lookingFor: 'Fractured, braided narratives; grief and family; formally inventive prose; books that resist genre; work in the tradition of Jenny Offill',
+      requirements: 'Query letter only (no pages) to CMBQuery@wmeagency.com', method: 'Email', methodUrl: 'https://www.wmebookdepartment.com/team/claudia-ballard/',
+      timeframe: '8-10 weeks', writers: 'Jenny Offill, Lauren Groff',
+      notes: 'Excellent fit for your comps', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+    {
+      name: 'Eleanor Jackson', agency: 'Dunow, Carlson & Lerner', fit: 'Medium',
+      genres: 'Literary fiction & nonfiction / memoir',
+      lookingFor: 'Deeply imagined worlds, writers who take risks, literary fiction and nonfiction, memoir — looks for work that is formally daring and emotionally grounded',
+      requirements: 'Query + first 10 pages pasted in email to mail@dclagency.com', method: 'Email', methodUrl: 'https://www.dclagency.com/',
+      timeframe: '6-8 weeks', writers: '',
+      notes: 'Boutique agency with strong literary list. Made partner 2025. Happy to see nonfiction on proposal.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+    },
+  ];
+
+  function uid() { return Math.random().toString(36).slice(2, 11); }
+
+  function load() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    agents = saved ? JSON.parse(saved) : seed.map(a => ({ id: uid(), ...a }));
+    if (!saved) save();
+  }
+
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(agents)); }
+
+  function getFiltered() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const fit = document.getElementById('fitFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    const queried = document.getElementById('queriedFilter').value;
+    return agents.filter(a => {
+      const text = [a.name, a.agency, a.genres, a.lookingFor, a.writers, a.notes].join(' ').toLowerCase();
+      if (q && !text.includes(q)) return false;
+      if (fit && a.fit !== fit) return false;
+      if (status && a.status !== status) return false;
+      if (queried && a.previouslyQueried !== queried) return false;
+      return true;
+    });
+  }
+
+  const fitOrder = { 'High': 0, 'Medium': 1, 'Low': 2, '': 3 };
+
+  function sortBy(col) {
+    if (sortCol === col) { sortDir *= -1; } else { sortCol = col; sortDir = 1; }
+    render();
+  }
+
+  function statusClass(s) {
+    return { 'Not Contacted': 'status-not-contacted', 'Queried': 'status-queried', 'Requested': 'status-requested', 'Rejected': 'status-rejected', 'Passed': 'status-passed' }[s] || 'status-not-contacted';
+  }
+
+  function fitClass(f) {
+    return { 'High': 'fit-high', 'Medium': 'fit-medium', 'Low': 'fit-low' }[f] || '';
+  }
+
+  function parseMaxWeeks(tf) {
+    if (!tf) return null;
+    const m = tf.match(/(\d+)(?:\s*[-–]\s*(\d+))?\s*weeks?/i);
+    if (!m) return null;
+    return parseInt(m[2] || m[1]);
+  }
+
+  function renderTimeframe(a) {
+    const tf = esc(a.timeframe) || '—';
+    if (a.status !== 'Queried' || !a.dateQueried) return `<span class="tf-label">${tf}</span>`;
+    const maxWeeks = parseMaxWeeks(a.timeframe);
+    if (!maxWeeks) return `<span class="tf-label">${tf}</span>`;
+    const days = (Date.now() - new Date(a.dateQueried)) / 86400000;
+    const inWindow = days <= maxWeeks * 7;
+    return `<div class="tf-wrap"><span class="tf-label">${tf}</span><span class="badge ${inWindow ? 'window-in' : 'window-out'}"><span class="badge-dot"></span>${inWindow ? 'In window' : 'Past window'}</span></div>`;
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function updateStats() {
+    document.getElementById('statTotal').textContent = agents.length;
+    document.getElementById('statHighFit').textContent = agents.filter(a => a.fit === 'High').length;
+    document.getElementById('statQueried').textContent = agents.filter(a => a.status === 'Queried').length;
+    document.getElementById('statRequested').textContent = agents.filter(a => a.status === 'Requested').length;
+  }
+
+  function render() {
+    updateStats();
+
+    let data = getFiltered();
+
+    if (sortCol) {
+      data.sort((a, b) => {
+        if (sortCol === 'fit') return (fitOrder[a.fit] - fitOrder[b.fit]) * sortDir;
+        const av = (a[sortCol] || '').toLowerCase();
+        const bv = (b[sortCol] || '').toLowerCase();
+        return av < bv ? -sortDir : av > bv ? sortDir : 0;
+      });
+    }
+
+    document.querySelectorAll('thead th[onclick]').forEach(th => {
+      th.classList.remove('sorted-asc', 'sorted-desc');
+      const col = th.getAttribute('onclick').replace("sortBy('","").replace("')","");
+      if (col === sortCol) th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+    });
+
+    document.getElementById('countLabel').textContent = `${data.length} agent${data.length !== 1 ? 's' : ''}`;
+
+    const tbody = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyState');
+
+    if (data.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    tbody.innerHTML = data.map(a => `
+      <tr>
+        <td class="col-agent">
+          <div class="agent-cell">
+            <div class="agent-name">${esc(a.name)}</div>
+            <div class="agent-agency">${esc(a.agency)}</div>
+          </div>
+        </td>
+        <td>${a.fit ? `<span class="badge ${fitClass(a.fit)}"><span class="badge-dot"></span>${esc(a.fit)}</span>` : '—'}</td>
+        <td class="col-looking">${esc(a.lookingFor) || '—'}</td>
+        <td class="col-genres">${esc(a.genres)}</td>
+        <td class="col-reqs">${a.methodUrl ? `<a href="${esc(a.methodUrl)}" target="_blank" style="color:#5B21B6;text-decoration:none;font-weight:500;">${esc(a.requirements)}</a>` : esc(a.requirements) || '—'}</td>
+        <td>${renderTimeframe(a)}</td>
+        <td class="col-writers">${esc(a.writers) || '—'}</td>
+        <td class="col-notes">${esc(a.notes) || '—'}</td>
+        <td class="${a.previouslyQueried === 'Yes' ? 'prev-yes' : 'prev-no'}">${a.previouslyQueried === 'Yes' ? 'Yes' : '—'}</td>
+        <td><span class="badge ${statusClass(a.status)}"><span class="badge-dot"></span>${esc(a.status)}</span></td>
+        <td style="font-size:12.5px;color:#717171">${esc(a.dateQueried) || '—'}</td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn-ghost-edit" onclick="openModal('${a.id}')">Edit</button>
+            <button class="btn-ghost-delete" onclick="deleteAgent('${a.id}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  const FIELDS = ['name','fit','agency','genres','lookingFor','requirements','method','methodUrl','timeframe','previouslyQueried','writers','notes','status','dateQueried'];
+
+  function openModal(id) {
+    editingId = id || null;
+    document.getElementById('modalTitle').textContent = id ? 'Edit Agent' : 'Add Agent';
+    if (id) {
+      const a = agents.find(x => x.id === id);
+      FIELDS.forEach(f => { document.getElementById('f-' + f).value = a[f] || ''; });
+    } else {
+      FIELDS.forEach(f => { document.getElementById('f-' + f).value = f === 'status' ? 'Not Contacted' : ''; });
+    }
+    document.getElementById('modalOverlay').classList.add('open');
+    document.getElementById('f-name').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    editingId = null;
+  }
+
+  function saveAgent() {
+    const data = {};
+    FIELDS.forEach(f => { data[f] = document.getElementById('f-' + f).value.trim(); });
+    if (!data.name) { alert('Agent name is required.'); return; }
+    if (editingId) {
+      const idx = agents.findIndex(a => a.id === editingId);
+      agents[idx] = { ...agents[idx], ...data };
+    } else {
+      agents.push({ id: uid(), ...data });
+    }
+    save();
+    render();
+    closeModal();
+  }
+
+  function deleteAgent(id) {
+    if (!confirm('Delete this agent?')) return;
+    agents = agents.filter(a => a.id !== id);
+    save();
+    render();
+  }
+
+  function exportCSV() {
+    const headers = ['Agent Name','Fit','Agency','Genres/Focus','Looking For','Submission Requirements','Submission Method','Submission URL','Response Timeframe','Writers Represented','Notes','Previously Queried','Status','Date Queried'];
+    const rows = agents.map(a => [a.name, a.fit, a.agency, a.genres, a.lookingFor, a.requirements, a.method, a.methodUrl, a.timeframe, a.writers, a.notes, a.previouslyQueried, a.status, a.dateQueried].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'agent-tracker.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Filter active state
+  ['fitFilter','statusFilter','queriedFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('change', () => {
+      el.classList.toggle('active', el.value !== '');
+      render();
+    });
+  });
+
+  document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('search').addEventListener('input', render);
+
+  load();
+  render();
+</script>
+</body>
+</html>
