@@ -309,7 +309,27 @@
     td.col-genres { max-width: 180px; font-size: 12.5px; color: #484848; }
     td.col-writers { max-width: 160px; font-size: 12.5px; color: #717171; }
     td.col-notes { min-width: 220px; max-width: 280px; font-size: 12.5px; color: #717171; }
-    td.col-reqs { max-width: 160px; font-size: 12.5px; }
+    td.col-reqs { min-width: 200px; max-width: 240px; font-size: 12.5px; }
+    .reqs-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.5;
+      cursor: default;
+    }
+    .reqs-text.has-overflow { cursor: help; position: relative; }
+    .reqs-text.has-overflow:hover {
+      overflow: visible;
+      -webkit-line-clamp: unset;
+      background: white;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      border-radius: 8px;
+      padding: 8px;
+      margin: -8px;
+    }
     td.col-method { white-space: nowrap; }
     td.col-method a {
       color: #5B21B6;
@@ -980,7 +1000,7 @@
         <td>${a.fit ? `<span class="badge ${fitClass(a.fit)}"><span class="badge-dot"></span>${esc(a.fit)}</span>` : '—'}</td>
         <td class="col-looking">${esc(a.lookingFor) || '—'}</td>
         <td class="col-genres">${esc(a.genres)}</td>
-        <td class="col-reqs">${a.methodUrl ? `<a href="${esc(a.methodUrl)}" target="_blank" style="color:#5B21B6;text-decoration:none;font-weight:500;">${esc(a.requirements)}</a>` : esc(a.requirements) || '—'}</td>
+        <td class="col-reqs"><div class="reqs-text">${a.methodUrl ? `<a href="${esc(a.methodUrl)}" target="_blank" style="color:#5B21B6;text-decoration:none;font-weight:500;">${esc(a.requirements)}</a>` : esc(a.requirements) || '—'}</div></td>
         <td>${renderTimeframe(a)}</td>
         <td class="col-writers">${esc(a.writers) || '—'}</td>
         <td class="col-notes">${esc(a.notes) || '—'}</td>
@@ -996,6 +1016,10 @@
         </td>
       </tr>
     `).join('');
+
+    document.querySelectorAll('.reqs-text').forEach(el => {
+      if (el.scrollHeight > el.clientHeight) el.classList.add('has-overflow');
+    });
   }
 
   const FIELDS = ['name','fit','agency','genres','lookingFor','requirements','method','methodUrl','timeframe','previouslyQueried','followUpAllowed','writers','notes','status','dateQueried'];
