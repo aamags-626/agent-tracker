@@ -373,6 +373,15 @@
     .prev-yes { color: #B86A00; font-weight: 600; font-size: 12.5px; }
     .prev-no { color: #BBBBBB; font-size: 12.5px; }
 
+    /* Follow-up */
+    .followup-wrap { display: flex; flex-direction: column; gap: 4px; white-space: nowrap; }
+    .followup-date { font-size: 12.5px; color: #484848; }
+    .followup-ready { color: #1A7F44; font-weight: 600; }
+    .followup-waiting { color: #717171; }
+    .followup-icon { font-size: 14px; cursor: help; }
+    .followup-allowed { color: #1A7F44; }
+    .followup-not-allowed { color: #DC2626; }
+
     /* ── Empty state ── */
     .empty-state {
       text-align: center;
@@ -585,6 +594,7 @@
         <th onclick="sortBy('previouslyQueried')">Prev.</th>
         <th onclick="sortBy('status')">Status</th>
         <th onclick="sortBy('dateQueried')">Queried On</th>
+        <th onclick="sortBy('followUp')">Follow Up</th>
         <th></th>
       </tr>
     </thead>
@@ -668,6 +678,14 @@
           <div class="form-group">
             <label>Previously Queried?</label>
             <select id="f-previouslyQueried">
+              <option value="">—</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Follow-up Allowed?</label>
+            <select id="f-followUpAllowed">
               <option value="">—</option>
               <option value="Yes">Yes</option>
               <option value="No">No</option>
@@ -887,6 +905,26 @@
     return `<div class="tf-wrap"><span class="tf-label">${tf}</span><span class="badge ${inWindow ? 'window-in' : 'window-out'}"><span class="badge-dot"></span>${inWindow ? 'In window' : 'Past window'}</span></div>`;
   }
 
+  function renderFollowUp(a) {
+    const allowed = a.followUpAllowed;
+    const icon = allowed === 'Yes' ? '<span class="followup-icon followup-allowed" title="Follow-up allowed">&#x2709;</span>'
+               : allowed === 'No' ? '<span class="followup-icon followup-not-allowed" title="Follow-up not allowed">&#x2715;</span>'
+               : '';
+
+    if (a.status !== 'Queried' || !a.dateQueried) return `<div class="followup-wrap">${icon || '—'}</div>`;
+
+    const maxWeeks = parseMaxWeeks(a.timeframe);
+    if (!maxWeeks) return `<div class="followup-wrap">${icon || '—'}</div>`;
+
+    const queried = new Date(a.dateQueried);
+    const followDate = new Date(queried.getTime() + maxWeeks * 7 * 86400000);
+    const now = new Date();
+    const ready = now >= followDate;
+    const dateStr = followDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    return `<div class="followup-wrap"><span class="followup-date ${ready ? 'followup-ready' : 'followup-waiting'}">${dateStr}${ready ? ' ✓' : ''}</span>${icon}</div>`;
+  }
+
   function esc(str) {
     if (!str) return '';
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -949,6 +987,7 @@
         <td class="${a.previouslyQueried === 'Yes' ? 'prev-yes' : 'prev-no'}">${a.previouslyQueried === 'Yes' ? 'Yes' : '—'}</td>
         <td><span class="badge ${statusClass(a.status)}"><span class="badge-dot"></span>${esc(a.status)}</span></td>
         <td style="font-size:12.5px;color:#717171">${esc(a.dateQueried) || '—'}</td>
+        <td>${renderFollowUp(a)}</td>
         <td>
           <div class="actions-cell">
             <button class="btn-ghost-edit" onclick="openModal('${a.id}')">Edit</button>
@@ -959,7 +998,7 @@
     `).join('');
   }
 
-  const FIELDS = ['name','fit','agency','genres','lookingFor','requirements','method','methodUrl','timeframe','previouslyQueried','writers','notes','status','dateQueried'];
+  const FIELDS = ['name','fit','agency','genres','lookingFor','requirements','method','methodUrl','timeframe','previouslyQueried','followUpAllowed','writers','notes','status','dateQueried'];
 
   function openModal(id) {
     editingId = id || null;
@@ -1002,8 +1041,8 @@
   }
 
   function exportCSV() {
-    const headers = ['Agent Name','Fit','Agency','Genres/Focus','Looking For','Submission Requirements','Submission Method','Submission URL','Response Timeframe','Writers Represented','Notes','Previously Queried','Status','Date Queried'];
-    const rows = agents.map(a => [a.name, a.fit, a.agency, a.genres, a.lookingFor, a.requirements, a.method, a.methodUrl, a.timeframe, a.writers, a.notes, a.previouslyQueried, a.status, a.dateQueried].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+    const headers = ['Agent Name','Fit','Agency','Genres/Focus','Looking For','Submission Requirements','Submission Method','Submission URL','Response Timeframe','Writers Represented','Notes','Previously Queried','Follow-up Allowed','Status','Date Queried'];
+    const rows = agents.map(a => [a.name, a.fit, a.agency, a.genres, a.lookingFor, a.requirements, a.method, a.methodUrl, a.timeframe, a.writers, a.notes, a.previouslyQueried, a.followUpAllowed, a.status, a.dateQueried].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
     const csv = [headers.join(','), ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
