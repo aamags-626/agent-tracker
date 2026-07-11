@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scene Tracker — Shamediary</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F7F7F7;
+      color: #222222;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #EBEBEB;
+      padding: 28px 40px 0;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .header-title h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #222222;
+    }
+
+    .header-title p {
+      font-size: 13px;
+      color: #717171;
+      margin-top: 3px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid #EBEBEB;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 16px 0;
+      text-align: center;
+      border-right: 1px solid #EBEBEB;
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #222222;
+      letter-spacing: -0.5px;
+    }
+
+    .stat-value.accent { color: #5B21B6; }
+
+    .stat-label {
+      font-size: 11px;
+      color: #717171;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .toolbar {
+      padding: 16px 40px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: white;
+      border-bottom: 1px solid #EBEBEB;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap { position: relative; }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #717171;
+      pointer-events: none;
+    }
+
+    .search-wrap input {
+      padding: 9px 14px 9px 38px;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 24px;
+      font-size: 13px;
+      font-family: inherit;
+      width: 240px;
+      outline: none;
+      background: white;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: #222;
+    }
+
+    .search-wrap input:focus {
+      border-color: #222;
+      box-shadow: 0 0 0 2px rgba(34,34,34,0.08);
+    }
+
+    .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    select.pill {
+      padding: 8px 14px;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 24px;
+      font-size: 13px;
+      font-family: inherit;
+      background: white;
+      outline: none;
+      cursor: pointer;
+      color: #222;
+      transition: border-color 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    select.pill:focus { border-color: #222; }
+    select.pill.active { border-color: #222; background-color: #F7F7F7; font-weight: 500; }
+
+    .spacer { flex: 1; }
+
+    .count-label {
+      font-size: 13px;
+      color: #717171;
+      font-weight: 500;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      transition: all 0.15s;
+      line-height: 1;
+    }
+
+    .btn-primary {
+      background: #5B21B6;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #4C1D95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(91,33,182,0.3);
+    }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-outline {
+      background: white;
+      color: #222;
+      border: 1.5px solid #DDDDDD;
+    }
+    .btn-outline:hover { border-color: #222; }
+
+    .btn-ghost-edit {
+      background: none;
+      color: #717171;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+
+    .btn-ghost-delete {
+      background: none;
+      color: #5B21B6;
+      border: 1.5px solid transparent;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.15s, border-color 0.15s;
+    }
+
+    .btn-ghost-edit:hover { border-color: #222; color: #222; }
+    .btn-ghost-delete:hover { border-color: #5B21B6; }
+
+    tr:hover .btn-ghost-edit,
+    tr:hover .btn-ghost-delete { opacity: 1; }
+
+    .table-wrap {
+      margin: 28px 40px;
+      overflow-x: auto;
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead th {
+      background: white;
+      padding: 13px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: #717171;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      border-bottom: 1.5px solid #EBEBEB;
+      transition: color 0.15s;
+    }
+
+    thead th:hover { color: #222; }
+    thead th.sorted-asc::after { content: ' ↑'; color: #5B21B6; }
+    thead th.sorted-desc::after { content: ' ↓'; color: #5B21B6; }
+
+    tbody tr {
+      border-bottom: 1px solid #F7F7F7;
+      transition: background 0.12s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #FAFAFA; }
+
+    td {
+      padding: 14px 16px;
+      vertical-align: middle;
+      font-size: 13px;
+      color: #222;
+    }
+
+    .scene-cell { min-width: 200px; }
+    .scene-name { font-weight: 600; font-size: 13px; color: #222; }
+
+    td.col-notes { min-width: 240px; max-width: 320px; font-size: 12.5px; color: #717171; line-height: 1.5; }
+
+    .actions-cell { white-space: nowrap; display: flex; gap: 6px; align-items: center; }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Attractor */
+    .attractor-dad    { background: #FFF0F0; color: #B91C1C; }
+    .attractor-dad    .badge-dot { background: #EF4444; }
+    .attractor-noa    { background: #EFF6FF; color: #1D4ED8; }
+    .attractor-noa    .badge-dot { background: #3B82F6; }
+    .attractor-both   { background: #F5F3FF; color: #6D28D9; }
+    .attractor-both   .badge-dot { background: #8B5CF6; }
+    .attractor-other  { background: #F7F7F7; color: #717171; }
+    .attractor-other  .badge-dot { background: #BBBBBB; }
+
+    /* Timeline */
+    .timeline-deep-past { background: #FFF8E6; color: #B86A00; }
+    .timeline-deep-past .badge-dot { background: #F59E0B; }
+    .timeline-then      { background: #F0FFF4; color: #1A7F44; }
+    .timeline-then      .badge-dot { background: #22C55E; }
+    .timeline-now       { background: #F0F9FF; color: #0369A1; }
+    .timeline-now       .badge-dot { background: #0EA5E9; }
+
+    /* Status */
+    .status-to-write    { background: #F7F7F7; color: #717171; }
+    .status-to-write    .badge-dot { background: #BBBBBB; }
+    .status-in-progress { background: #FFF8E6; color: #B86A00; }
+    .status-in-progress .badge-dot { background: #F59E0B; }
+    .status-done        { background: #F0FFF4; color: #1A7F44; }
+    .status-done        .badge-dot { background: #22C55E; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: white;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-title { font-size: 16px; font-weight: 600; color: #222; margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; color: #717171; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 20px;
+      width: 580px;
+      max-width: 95vw;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.97) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid #EBEBEB;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: #F7F7F7;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #717171;
+      padding: 0;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+    .modal-close:hover { background: #EBEBEB; }
+
+    .modal-body { padding: 24px 32px; }
+
+    .form-section { margin-bottom: 24px; }
+
+    .form-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #717171;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #F7F7F7;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #484848;
+      letter-spacing: 0.1px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px 13px;
+      border: 1.5px solid #DDDDDD;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      background: white;
+      color: #222;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: #222;
+      box-shadow: 0 0 0 3px rgba(34,34,34,0.07);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+    /* Inline select */
+    .inline-select {
+      padding: 4px 8px;
+      border: 1.5px solid #222;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      background: white;
+      color: #222;
+    }
+
+    .badge { cursor: pointer; }
+    .badge:hover { opacity: 0.8; }
+
+    .modal-footer {
+      padding: 20px 32px 28px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      border-top: 1px solid #EBEBEB;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-title">
+      <h1>Scene Tracker</h1>
+      <p>Shamediary — scenes to write</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary" onclick="openModal()">+ Add Scene</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-label">Total Scenes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value accent" id="statToWrite">—</div>
+      <div class="stat-label">To Write</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statInProgress">—</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value" id="statDone">—</div>
+      <div class="stat-label">Done</div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="search" placeholder="Search scenes...">
+  </div>
+  <div class="filter-pills">
+    <select class="pill" id="attractorFilter">
+      <option value="">All attractors</option>
+      <option value="Dad">Dad</option>
+      <option value="Noa">Noa</option>
+      <option value="Both">Both</option>
+      <option value="Other">Other</option>
+    </select>
+    <select class="pill" id="timelineFilter">
+      <option value="">All timelines</option>
+      <option value="Deep Past">Deep Past</option>
+      <option value="Then">Then</option>
+      <option value="Now">Now</option>
+    </select>
+    <select class="pill" id="statusFilter">
+      <option value="">All statuses</option>
+      <option value="To Write">To Write</option>
+      <option value="In Progress">In Progress</option>
+      <option value="Done">Done</option>
+    </select>
+  </div>
+  <span class="spacer"></span>
+  <span class="count-label" id="countLabel"></span>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sortBy('scene')">Scene</th>
+        <th onclick="sortBy('attractor')">Attractor</th>
+        <th onclick="sortBy('timeline')">Timeline</th>
+        <th onclick="sortBy('status')">Status</th>
+        <th onclick="sortBy('notes')">Notes</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="empty-state" id="emptyState" style="display:none">
+    <div class="empty-icon">✍️</div>
+    <div class="empty-title">No scenes found</div>
+    <div class="empty-sub">Try adjusting your filters or add a new scene</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add Scene</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Scene</label>
+            <input type="text" id="fScene" placeholder="Scene title or description">
+          </div>
+          <div class="form-group">
+            <label>Attractor</label>
+            <select id="fAttractor">
+              <option value="">—</option>
+              <option value="Dad">Dad</option>
+              <option value="Noa">Noa</option>
+              <option value="Both">Both</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Timeline</label>
+            <select id="fTimeline">
+              <option value="">—</option>
+              <option value="Deep Past">Deep Past</option>
+              <option value="Then">Then</option>
+              <option value="Now">Now</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="fStatus">
+              <option value="To Write">To Write</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Notes</label>
+            <textarea id="fNotes" placeholder="Any notes, ideas, or context..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveScene()">Save Scene</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'shamediary_scenes_v1';
+
+  const SEED = [
+    {
+      id: 1,
+      scene: 'Heather ukelele',
+      attractor: 'Noa',
+      timeline: 'Then',
+      status: 'To Write',
+      notes: 'Noa tries to get Heather to play, narrator takes over, Noa chastises her.'
+    },
+    {
+      id: 2,
+      scene: 'Noa golden boy',
+      attractor: 'Both',
+      timeline: 'Then',
+      status: 'To Write',
+      notes: 'Brother Paul tells Noa that the narrator\'s dad was a golden boy. Noa relays this.'
+    },
+    {
+      id: 3,
+      scene: 'Heather fuck off',
+      attractor: 'Noa',
+      timeline: 'Then',
+      status: 'To Write',
+      notes: 'You mean nothing to me.'
+    },
+    {
+      id: 4,
+      scene: 'Noa snowstorm Georgetown',
+      attractor: 'Noa',
+      timeline: 'Then',
+      status: 'To Write',
+      notes: 'Snow, cigar, vomit, stuck inside, horny, meet my friends.'
+    }
+  ];
+
+  let scenes = [];
+  let editingId = null;
+  let sortKey = null;
+  let sortDir = 1;
+
+  function load() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      scenes = JSON.parse(raw);
+    } else {
+      scenes = SEED.map(s => ({...s}));
+      save();
+    }
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(scenes));
+  }
+
+  function nextId() {
+    return scenes.length ? Math.max(...scenes.map(s => s.id)) + 1 : 1;
+  }
+
+  function render() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const aF = document.getElementById('attractorFilter').value;
+    const tF = document.getElementById('timelineFilter').value;
+    const sF = document.getElementById('statusFilter').value;
+
+    let filtered = scenes.filter(s => {
+      const text = [s.scene, s.notes].join(' ').toLowerCase();
+      if (q && !text.includes(q)) return false;
+      if (aF && s.attractor !== aF) return false;
+      if (tF && s.timeline !== tF) return false;
+      if (sF && s.status !== sF) return false;
+      return true;
+    });
+
+    if (sortKey) {
+      filtered.sort((a, b) => {
+        const av = (a[sortKey] || '').toLowerCase();
+        const bv = (b[sortKey] || '').toLowerCase();
+        return av < bv ? -sortDir : av > bv ? sortDir : 0;
+      });
+    }
+
+    // Stats
+    document.getElementById('statTotal').textContent = scenes.length;
+    document.getElementById('statToWrite').textContent = scenes.filter(s => s.status === 'To Write').length;
+    document.getElementById('statInProgress').textContent = scenes.filter(s => s.status === 'In Progress').length;
+    document.getElementById('statDone').textContent = scenes.filter(s => s.status === 'Done').length;
+    document.getElementById('countLabel').textContent = filtered.length + ' scene' + (filtered.length !== 1 ? 's' : '');
+
+    const body = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyState');
+
+    if (filtered.length === 0) {
+      body.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    body.innerHTML = filtered.map(s => `
+      <tr>
+        <td><div class="scene-name">${esc(s.scene)}</div></td>
+        <td id="cell-attractor-${s.id}">${attractorBadge(s.attractor, s.id)}</td>
+        <td id="cell-timeline-${s.id}">${timelineBadge(s.timeline, s.id)}</td>
+        <td id="cell-status-${s.id}">${statusBadge(s.status, s.id)}</td>
+        <td class="col-notes">${esc(s.notes || '')}</td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn-ghost-edit" onclick="openModal(${s.id})">Edit</button>
+            <button class="btn-ghost-delete" onclick="deleteScene(${s.id})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function attractorBadge(v, id) {
+    if (!v) return `<span style="color:#BBBBBB;font-size:12px;cursor:pointer;" onclick="inlineEdit(${id},'attractor')">—</span>`;
+    const cls = { Dad: 'attractor-dad', Noa: 'attractor-noa', Both: 'attractor-both', Other: 'attractor-other' }[v] || 'attractor-other';
+    return `<span class="badge ${cls}" onclick="inlineEdit(${id},'attractor')"><span class="badge-dot"></span>${v}</span>`;
+  }
+
+  function timelineBadge(v, id) {
+    if (!v) return `<span style="color:#BBBBBB;font-size:12px;cursor:pointer;" onclick="inlineEdit(${id},'timeline')">—</span>`;
+    const cls = { 'Deep Past': 'timeline-deep-past', 'Then': 'timeline-then', 'Now': 'timeline-now' }[v] || '';
+    return `<span class="badge ${cls}" onclick="inlineEdit(${id},'timeline')"><span class="badge-dot"></span>${v}</span>`;
+  }
+
+  function statusBadge(v, id) {
+    if (!v) return `<span style="color:#BBBBBB;font-size:12px;cursor:pointer;" onclick="inlineEdit(${id},'status')">—</span>`;
+    const cls = { 'To Write': 'status-to-write', 'In Progress': 'status-in-progress', 'Done': 'status-done' }[v] || 'status-to-write';
+    return `<span class="badge ${cls}" onclick="inlineEdit(${id},'status')"><span class="badge-dot"></span>${v}</span>`;
+  }
+
+  const INLINE_OPTIONS = {
+    attractor: ['', 'Dad', 'Noa', 'Both', 'Other'],
+    timeline:  ['', 'Deep Past', 'Then', 'Now'],
+    status:    ['To Write', 'In Progress', 'Done']
+  };
+
+  function inlineEdit(id, field) {
+    const cell = document.getElementById(`cell-${field}-${id}`);
+    const s = scenes.find(x => x.id === id);
+    const opts = INLINE_OPTIONS[field];
+    const sel = document.createElement('select');
+    sel.className = 'inline-select';
+    opts.forEach(o => {
+      const opt = document.createElement('option');
+      opt.value = o;
+      opt.textContent = o || '—';
+      if (o === s[field]) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    cell.innerHTML = '';
+    cell.appendChild(sel);
+    sel.focus();
+    sel.addEventListener('change', () => {
+      s[field] = sel.value;
+      save();
+      render();
+    });
+    sel.addEventListener('blur', () => render());
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function sortBy(key) {
+    if (sortKey === key) sortDir *= -1;
+    else { sortKey = key; sortDir = 1; }
+    document.querySelectorAll('thead th').forEach(th => {
+      th.classList.remove('sorted-asc','sorted-desc');
+    });
+    const headers = ['scene','attractor','timeline','status','notes'];
+    const idx = headers.indexOf(key);
+    if (idx >= 0) {
+      const ths = document.querySelectorAll('thead th');
+      ths[idx].classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+    }
+    render();
+  }
+
+  function openModal(id) {
+    editingId = id || null;
+    document.getElementById('modalTitle').textContent = id ? 'Edit Scene' : 'Add Scene';
+    if (id) {
+      const s = scenes.find(x => x.id === id);
+      document.getElementById('fScene').value = s.scene || '';
+      document.getElementById('fAttractor').value = s.attractor || '';
+      document.getElementById('fTimeline').value = s.timeline || '';
+      document.getElementById('fStatus').value = s.status || 'To Write';
+      document.getElementById('fNotes').value = s.notes || '';
+    } else {
+      document.getElementById('fScene').value = '';
+      document.getElementById('fAttractor').value = '';
+      document.getElementById('fTimeline').value = '';
+      document.getElementById('fStatus').value = 'To Write';
+      document.getElementById('fNotes').value = '';
+    }
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('fScene').focus(), 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    editingId = null;
+  }
+
+  function saveScene() {
+    const scene = document.getElementById('fScene').value.trim();
+    if (!scene) { document.getElementById('fScene').focus(); return; }
+    const data = {
+      scene,
+      attractor: document.getElementById('fAttractor').value,
+      timeline: document.getElementById('fTimeline').value,
+      status: document.getElementById('fStatus').value,
+      notes: document.getElementById('fNotes').value.trim()
+    };
+    if (editingId) {
+      const idx = scenes.findIndex(s => s.id === editingId);
+      scenes[idx] = { ...scenes[idx], ...data };
+    } else {
+      scenes.push({ id: nextId(), ...data });
+    }
+    save();
+    closeModal();
+    render();
+  }
+
+  function deleteScene(id) {
+    if (!confirm('Delete this scene?')) return;
+    scenes = scenes.filter(s => s.id !== id);
+    save();
+    render();
+  }
+
+  document.getElementById('search').addEventListener('input', render);
+  document.getElementById('attractorFilter').addEventListener('change', render);
+  document.getElementById('timelineFilter').addEventListener('change', render);
+  document.getElementById('statusFilter').addEventListener('change', render);
+
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  load();
+  render();
+</script>
+</body>
+</html>

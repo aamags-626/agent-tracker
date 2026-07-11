@@ -1084,7 +1084,9 @@
     });
   });
 
-  document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('modalOverlay').addEventListener('mousedown', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
   document.getElementById('search').addEventListener('input', render);
 
   load();
