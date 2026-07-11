@@ -4,7 +4,7 @@ A personal guide for finding agents and navigating the publishing process.
 
 ## My Book
 - Title: Shamediary
-- Genre/Form: Autofiction / Literary Memoir (TBD)
+- Genre/Form: Literary Memoir
 - Word count: 65–70k (estimated)
 - Status: Finishing first draft
 - Style: Fragmented and lyrical

@@ -611,6 +611,7 @@
         <th onclick="sortBy('timeframe')">Timeframe</th>
         <th onclick="sortBy('writers')">Writers</th>
         <th onclick="sortBy('notes')">Notes</th>
+        <th onclick="sortBy('experience')">Experience</th>
         <th onclick="sortBy('previouslyQueried')">Prev.</th>
         <th onclick="sortBy('status')">Status</th>
         <th onclick="sortBy('dateQueried')">Queried On</th>
@@ -668,6 +669,10 @@
             <label>Looking For</label>
             <textarea id="f-lookingFor" placeholder="e.g. Braided narratives, grief and family, formally inventive prose..."></textarea>
           </div>
+          <div class="form-group full">
+            <label>Bio / Source URL</label>
+            <input type="text" id="f-bioUrl" placeholder="https://... (link to agent bio page)">
+          </div>
         </div>
       </div>
 
@@ -714,6 +719,16 @@
         </div>
       </div>
 
+      <div class="form-section">
+        <div class="form-section-title">Experience</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Agent Experience</label>
+            <input type="text" id="f-experience" placeholder="e.g. Boutique · founder, Major · partner">
+          </div>
+        </div>
+      </div>
+
       <div class="form-section" style="margin-bottom:0">
         <div class="form-section-title">Tracking</div>
         <div class="form-grid">
@@ -747,7 +762,7 @@
 </div>
 
 <script>
-  const STORAGE_KEY = 'agentTrackerData_v4';
+  const STORAGE_KEY = 'agentTrackerData_v6';
   let agents = [];
   let editingId = null;
   let sortCol = null;
@@ -756,115 +771,143 @@
   const seed = [
     {
       name: 'Monika Woods', agency: 'Triangle House Literary', fit: 'High',
-      genres: 'Literary fiction & nonfiction / hybrid',
-      lookingFor: 'Experimental structures, body and identity, hybrid forms, grief and loss, writing that defies easy categorization',
-      requirements: 'Query + 10 pages (in email body)', method: 'Email', methodUrl: 'https://www.triangle.house/contact',
-      timeframe: '8-10 weeks', writers: 'Carmen Maria Machado, Maggie Nelson',
-      notes: 'Strong fit for hybrid/lyric work. Check current status — may be referral only.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      genres: 'Literary fiction & nonfiction',
+      lookingFor: 'Plot-driven literary novels, nonfiction that is creatively critical, unique perspectives, original prose. Also: cultural criticism, food, popular culture, journalism, science, current affairs.',
+      bioUrl: 'https://www.triangle.house/staff',
+      requirements: 'Query + 10 pages in email body to monika@triangle.house', method: 'Email', methodUrl: 'https://www.triangle.house/contact',
+      timeframe: '8-10 weeks', writers: '',
+      experience: 'Boutique · founder',
+      notes: 'Strong fit for hybrid/lyric work. No-response-means-no policy.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'PJ Mark', agency: 'Janklow & Nesbit', fit: 'Medium',
-      genres: 'Literary fiction & nonfiction',
-      lookingFor: 'Distinctive voice, literary risk-taking, work that crosses genre boundaries, cultural criticism',
-      requirements: 'Query + sample pages to submissions@janklow.com', method: 'Email', methodUrl: 'https://www.janklowandnesbit.com/submissions',
-      timeframe: '8-12 weeks', writers: 'Ottessa Moshfegh, Hanif Abdurraqib',
-      notes: 'Represents literary voice-driven work', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      genres: 'Literary fiction & nonfiction / memoir',
+      lookingFor: 'Bestselling and widely acclaimed writers across literary fiction, memoir, creative nonfiction, essays. Reps Maggie Nelson, Eileen Myles, Cathy Park Hong, Olivia Laing, Kiese Laymon.',
+      bioUrl: 'https://www.janklowandnesbit.com/people/pj-mark',
+      requirements: 'Query + full outline + first 10 pages to submissions@janklow.com (nonfiction)', method: 'Email', methodUrl: 'https://www.janklowandnesbit.com/submissions',
+      timeframe: '8-12 weeks', writers: 'Maggie Nelson, Eileen Myles, Cathy Park Hong, Olivia Laing, Kiese Laymon',
+      experience: 'Major · partner',
+      notes: 'Represents literary voice-driven work. Partner since 2015. No AI-written submissions.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Kate Johnson', agency: 'Wolf Literary Services', fit: 'High',
-      genres: 'Literary nonfiction / memoir / hybrid',
-      lookingFor: 'Fragmented memoir, lyric prose, stories about family and inheritance, unconventional families, formally inventive nonfiction, voices that uncover something off-kilter in the everyday',
-      requirements: 'Query + sample pages (fiction) or full proposal (nonfiction)', method: 'Email', methodUrl: 'https://wolflit.com/contact',
-      timeframe: '6-8 weeks', writers: 'Hilary Leichter',
-      notes: 'Known interest in hybrid memoir. Previously at Georges Borchardt.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      genres: 'Literary nonfiction / narrative nonfiction / select memoir',
+      lookingFor: '"Authentic voices and books that uncover something off-kilter in the everyday, or conversely something relatable in the extraordinary." Interests: food, running, obsessives, unconventional families, art, social justice, mental health.',
+      bioUrl: 'https://wolflit.com/kate-johnson',
+      requirements: 'Query + sample pages (fiction) or full proposal (nonfiction) to queries@wolflit.com', method: 'Email', methodUrl: 'https://wolflit.com/contact',
+      timeframe: '6-16 weeks', writers: 'Hilary Leichter',
+      experience: 'Boutique · agent',
+      notes: 'Reps select memoir. Also UK rights manager. Interests: food, obsessives, mental health, social justice.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Marya Spence', agency: 'Janklow & Nesbit', fit: 'Medium',
       genres: 'Literary fiction & nonfiction',
-      lookingFor: 'Literary fiction and nonfiction with formal ambition, voice-driven essays, cultural criticism, strong authorial presence',
-      requirements: 'Query + synopsis + first 10 pages to submissions@janklow.com', method: 'Email', methodUrl: 'https://www.janklowandnesbit.com/submissions',
-      timeframe: '12 weeks', writers: '',
-      notes: 'Very literary. MFA NYU, former New Yorker.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      lookingFor: '"Books that immerse, critique, delight, or illuminate." Fiction, narrative nonfiction, cultural criticism, voice-driven essays, pop culture writing.',
+      bioUrl: 'https://www.janklowandnesbit.com/people/marya-spence',
+      requirements: 'Query + full outline + first 10 pages to submissions@janklow.com (nonfiction)', method: 'Email', methodUrl: 'https://www.janklowandnesbit.com/submissions',
+      timeframe: '12 weeks', writers: 'Hermione Hoby, Rachel Khong, Maggie Millner, Elaine Welteroth',
+      experience: 'Major · agent',
+      notes: 'Very literary. MFA NYU, former New Yorker. No AI-written submissions.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Michelle Brower', agency: 'Trellis Literary Management', fit: 'High',
-      genres: 'Literary fiction & memoir',
-      lookingFor: 'Queer memoir, body politics, intimate family narratives, stories about illness and loss, hybrid and braided forms, personal story that illuminates a greater subject',
+      genres: 'Literary & commercial fiction / narrative nonfiction',
+      lookingFor: 'Book club fiction (commercial idea, literary execution), literary fiction, story collections, literary suspense. Nonfiction: "a personal story that illuminates a greater subject." Supports underrepresented voices.',
+      bioUrl: 'https://www.trellisliterary.com/michellebrower',
       requirements: 'Query via QueryManager', method: 'QueryManager', methodUrl: 'https://www.trellisliterary.com/submissions',
-      timeframe: '8-12 weeks', writers: 'Kristen Arnett, Garrard Conley',
-      notes: 'Strong interest in queer and hybrid memoir', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      timeframe: '8-12 weeks', writers: 'Mary Kubica, Riley Sager, Jaquira Diaz, Rufi Thorpe',
+      experience: 'Boutique · founding partner',
+      notes: 'Strong interest in queer and hybrid memoir. Query one Trellis agent at a time.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
-      name: 'Julie Stevenson', agency: 'Massie & McQuilkin', fit: 'High',
-      genres: 'Literary nonfiction / memoir / essays',
-      lookingFor: 'Lyric essay, fragmented narrative, memory and grief, work that lives between genres, powerful storytelling, authorial command of voice',
-      requirements: 'Query to julie@mmqalit.com', method: 'Email', methodUrl: 'https://www.mmqalit.com/contact/',
-      timeframe: '8-10 weeks', writers: '',
-      notes: 'MFA Sarah Lawrence, former Tin House editorial. Known for lyric and fragmented nonfiction.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      name: 'Julie Stevenson', agency: 'Massie McQuilkin & Altman', fit: 'High',
+      genres: 'Literary fiction / memoir / narrative nonfiction / YA',
+      lookingFor: '"Fiction with unforgettable characters, authorial command of voice, and strong narrative tension. She loves outsiders, weirdos, and innovators." Also: memoir, narrative nonfiction, suspense.',
+      bioUrl: 'https://www.mmqalit.com/about',
+      requirements: 'Query + first 10 pages in email body to julie@mmqalit.com', method: 'Email', methodUrl: 'https://www.mmqalit.com/contact/',
+      timeframe: '2-4 weeks', writers: '',
+      experience: 'Mid-size · agent',
+      notes: 'MFA Sarah Lawrence, former Tin House editorial. No-response-means-no policy. Subject line: "Query: TITLE, category".', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
-      name: 'Duvall Osteen', agency: 'Aragi Inc.', fit: 'Medium',
-      genres: 'Literary fiction & nonfiction',
-      lookingFor: 'Formally experimental work, autofiction, literary nonfiction with an essayistic sensibility, multigenerational storytelling, writers with a singular vision',
-      requirements: 'Query to queries@aragi.net, Attn: Duvall Osteen', method: 'Email', methodUrl: 'https://aragi.net/',
+      name: 'Duvall Osteen', agency: 'United Talent Agency (UTA)', fit: 'Medium',
+      genres: 'Literary fiction & nonfiction / graphic novels',
+      lookingFor: 'Literary fiction, narrative nonfiction, graphic novels. Formerly at Aragi — verify current interests at UTA.',
+      bioUrl: '',
+      requirements: 'Verify — moved from Aragi to UTA', method: 'Email', methodUrl: '',
       timeframe: 'Varies', writers: 'Elif Batuman, Rachel Cusk',
-      notes: 'Very literary / prestige list — accepts unsolicited', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      experience: 'Major · agent',
+      notes: 'Left Aragi Inc. after 11 years, now at UTA. Verify submission process before querying.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Samantha Shea', agency: 'Georges Borchardt Inc.', fit: 'Medium',
-      genres: 'Literary fiction & nonfiction / essays',
-      lookingFor: 'Essays and hybrid nonfiction with literary ambition, work that meditates on memory and the body, literary fiction, cultural criticism',
-      requirements: 'Query + sample', method: 'Email', methodUrl: 'https://www.gbagency.com/',
+      genres: 'Literary fiction & nonfiction / essays / memoir',
+      lookingFor: 'Literary fiction, memoir, narrative nonfiction, journalism, cultural criticism, essays, history. VP at Georges Borchardt. Could not verify detailed MSWL — site did not render.',
+      bioUrl: 'https://www.gbagency.com/',
+      requirements: 'Query + sample to samantha@gbagency.com', method: 'Email', methodUrl: 'https://www.gbagency.com/',
       timeframe: '8-12 weeks', writers: '',
-      notes: 'Strong backlist of hybrid and essayistic work. Verify current unsolicited policy before querying.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      experience: 'Mid-size · VP',
+      notes: 'Currently CLOSED to unsolicited queries. Monitor for reopening. Strong backlist of hybrid and essayistic work.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Sarah Levitt', agency: 'Aevitas Creative Management', fit: 'High',
       genres: 'Literary nonfiction / hybrid / memoir',
-      lookingFor: '"Memoir plus" — half memoir, half something else; smart culture writing; work that defies easy categorization; voice-driven literary fiction with fresh characters',
+      lookingFor: '"Deep generalist." Narrative nonfiction (science, history, big ideas, reportage), "memoir plus" (not quite memoir, not quite straight nonfiction), voice-driven literary fiction with bold plots. Strong female and underrepresented voices.',
+      bioUrl: 'https://www.aevitascreative.com/agent/sarah-levitt',
       requirements: 'Query via QueryManager', method: 'QueryManager', methodUrl: 'https://www.aevitascreative.com/contact',
-      timeframe: '3-4 months', writers: '',
-      notes: 'Specifically seeks "memoir plus" — perfect framing for hybrid work', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      timeframe: '3-4 months', writers: 'Robin Wall Kimmerer, Ruha Benjamin, Phuc Tran',
+      experience: 'Major · senior agent',
+      notes: 'Specifically seeks "memoir plus" — perfect framing for hybrid work. No-response-means-no. Query one Aevitas agent at a time.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Natalie Edwards', agency: 'Trellis Literary Management', fit: 'High',
       genres: 'Literary fiction & nonfiction / memoir',
-      lookingFor: 'Braided narratives of friendship and family, hybrid memoir, cultural criticism, narrative nonfiction; formerly at Janklow & Nesbit and Curtis Brown',
+      lookingFor: '"Accessible voices with a literary sensibility" and "steady plot momentum." Gravitates toward projects that blur genre — "historical with a hint of the speculative, journalistic nonfiction with a memoir throughline." Humor, hope, wonder, complexity.',
+      bioUrl: 'https://www.trellisliterary.com/natalieedwards',
       requirements: 'Query via QueryManager', method: 'QueryManager', methodUrl: 'https://www.trellisliterary.com/submissions',
-      timeframe: '12 weeks', writers: '',
-      notes: 'Boutique feel with strong literary pedigree. Pref: query one Trellis agent at a time.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      timeframe: '8-12 weeks', writers: '',
+      experience: 'Boutique · agent',
+      notes: 'Strong fit for hybrid memoir. Formerly at Janklow & Nesbit and Curtis Brown. Query one Trellis agent at a time.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Anna Sproul-Latimer', agency: 'Neon Literary', fit: 'Medium',
-      genres: 'Adult nonfiction / select literary fiction',
-      lookingFor: 'Buzzing, curious, slightly unhinged voices; cultural criticism; experimental nonfiction; hybrid work in the Trick Mirror vein; writers with infectious enthusiasm',
-      requirements: 'Query to anna@neonliterary.com', method: 'Email', methodUrl: 'https://neonliterary.com/team',
-      timeframe: 'Varies', writers: '',
-      notes: 'Boutique agency, highly selective. Runs a publishing Substack — worth reading before querying.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      genres: 'Adult nonfiction / memoir / select literary fiction',
+      lookingFor: '"Buzzing, bright, curious, slightly unhinged authors who are driven by enthusiasm so infectious that (inter)national audiences are already paying attention." Focus: memoir, history, pop culture, science, parenting, select literary fiction.',
+      bioUrl: 'https://neonliterary.com/team',
+      requirements: 'Query + proposal/outline to submissions@neonliterary.com', method: 'Email', methodUrl: 'https://neonliterary.com/team',
+      timeframe: '4 weeks', writers: '',
+      experience: 'Boutique · founding partner',
+      notes: 'Highly selective. Subject line: specify "Anna". No-response-means-no. Runs a publishing Substack — worth reading before querying.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Sonali Chanchani', agency: 'Folio Literary Management', fit: 'Medium',
       genres: 'Literary nonfiction / memoir / essays',
       lookingFor: 'Braided narratives of friendship and family, memoir and essay collections that speak to larger social concerns, cultural criticism, writing that centers underrepresented voices',
+      bioUrl: 'https://www.foliolit.com/sonali-chanchani',
       requirements: 'Query + first 10 pages (pasted in email body) to sonali@foliolit.com', method: 'Email', methodUrl: 'https://www.foliolit.com/submit',
       timeframe: '6-8 weeks', writers: '',
-      notes: 'Strong interest in braided structure and essay-driven memoir', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      experience: 'Mid-size · agent',
+      notes: 'Strong interest in braided structure and essay-driven memoir. Could not verify current status — check before querying.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Claudia Ballard', agency: 'WME', fit: 'High',
-      genres: 'Literary fiction & nonfiction',
-      lookingFor: 'Fractured, braided narratives; grief and family; formally inventive prose; books that resist genre; work in the tradition of Jenny Offill',
-      requirements: 'Query letter only (no pages) to CMBQuery@wmeagency.com', method: 'Email', methodUrl: 'https://www.wmebookdepartment.com/team/claudia-ballard/',
-      timeframe: '8-10 weeks', writers: 'Jenny Offill, Lauren Groff',
-      notes: 'Excellent fit for your comps', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      genres: 'Literary fiction & nonfiction / memoir',
+      lookingFor: '"Imaginative voice, perceptive and propulsive storytelling, vivid emotion and soul, stories about families, and joyful (or dark!) humor." Writers: Curtis Sittenfeld, Emma Straub, Julie Buntin, Jenny Slate, Chloé Cooper-Jones.',
+      bioUrl: 'https://www.wmebookdepartment.com/team/claudia-ballard/',
+      requirements: 'Query letter only (no pages) to CMBQuery@wmeagency.com. Include bio.', method: 'Email', methodUrl: 'https://www.wmebookdepartment.com/team/claudia-ballard/',
+      timeframe: '8-10 weeks', writers: 'Curtis Sittenfeld, Emma Straub, Julie Buntin, Jenny Slate, Chloé Cooper-Jones, Jenny Offill, Lauren Groff',
+      experience: 'Major · partner',
+      notes: 'Excellent fit for comps. Reps memoirists including Chloé Cooper-Jones.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
     {
       name: 'Eleanor Jackson', agency: 'Dunow, Carlson & Lerner', fit: 'Medium',
-      genres: 'Literary fiction & nonfiction / memoir',
-      lookingFor: 'Deeply imagined worlds, writers who take risks, literary fiction and nonfiction, memoir — looks for work that is formally daring and emotionally grounded',
+      genres: 'Literary fiction & nonfiction / memoir / essays',
+      lookingFor: '"Writers who span genres and take risks." Narrative nonfiction with a strong voice and outsider perspective. Novels with great storytelling and deeply imagined worlds.',
+      bioUrl: 'https://www.dclagency.com/eleanor-jackson',
       requirements: 'Query + first 10 pages pasted in email to mail@dclagency.com', method: 'Email', methodUrl: 'https://www.dclagency.com/',
       timeframe: '6-8 weeks', writers: '',
-      notes: 'Boutique agency with strong literary list. Made partner 2025. Happy to see nonfiction on proposal.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
+      experience: 'Boutique · partner',
+      notes: 'Made partner 2025. Reps memoir, essays, food, science, history. Happy to see nonfiction on proposal.', previouslyQueried: '', status: 'Not Contacted', dateQueried: ''
     },
   ];
 
@@ -998,12 +1041,13 @@
           </div>
         </td>
         <td>${a.fit ? `<span class="badge ${fitClass(a.fit)}"><span class="badge-dot"></span>${esc(a.fit)}</span>` : '—'}</td>
-        <td class="col-looking">${esc(a.lookingFor) || '—'}</td>
+        <td class="col-looking">${a.lookingFor ? (a.bioUrl ? `<a href="${esc(a.bioUrl)}" target="_blank" style="color:#5B21B6;text-decoration:underline;">${esc(a.lookingFor)}</a>` : esc(a.lookingFor)) : '—'}</td>
         <td class="col-genres">${esc(a.genres)}</td>
         <td class="col-reqs"><div class="reqs-text">${a.methodUrl ? `<a href="${esc(a.methodUrl)}" target="_blank" style="color:#5B21B6;text-decoration:none;font-weight:500;">${esc(a.requirements)}</a>` : esc(a.requirements) || '—'}</div></td>
         <td>${renderTimeframe(a)}</td>
         <td class="col-writers">${esc(a.writers) || '—'}</td>
         <td class="col-notes">${esc(a.notes) || '—'}</td>
+        <td style="font-size:12.5px;color:#484848;white-space:nowrap">${esc(a.experience) || '—'}</td>
         <td class="${a.previouslyQueried === 'Yes' ? 'prev-yes' : 'prev-no'}">${a.previouslyQueried === 'Yes' ? 'Yes' : '—'}</td>
         <td><span class="badge ${statusClass(a.status)}"><span class="badge-dot"></span>${esc(a.status)}</span></td>
         <td style="font-size:12.5px;color:#717171">${esc(a.dateQueried) || '—'}</td>
@@ -1022,7 +1066,7 @@
     });
   }
 
-  const FIELDS = ['name','fit','agency','genres','lookingFor','requirements','method','methodUrl','timeframe','previouslyQueried','followUpAllowed','writers','notes','status','dateQueried'];
+  const FIELDS = ['name','fit','agency','genres','lookingFor','bioUrl','requirements','method','methodUrl','timeframe','previouslyQueried','followUpAllowed','experience','writers','notes','status','dateQueried'];
 
   function openModal(id) {
     editingId = id || null;
@@ -1065,8 +1109,8 @@
   }
 
   function exportCSV() {
-    const headers = ['Agent Name','Fit','Agency','Genres/Focus','Looking For','Submission Requirements','Submission Method','Submission URL','Response Timeframe','Writers Represented','Notes','Previously Queried','Follow-up Allowed','Status','Date Queried'];
-    const rows = agents.map(a => [a.name, a.fit, a.agency, a.genres, a.lookingFor, a.requirements, a.method, a.methodUrl, a.timeframe, a.writers, a.notes, a.previouslyQueried, a.followUpAllowed, a.status, a.dateQueried].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+    const headers = ['Agent Name','Fit','Agency','Genres/Focus','Looking For','Bio URL','Submission Requirements','Submission Method','Submission URL','Response Timeframe','Writers Represented','Notes','Previously Queried','Follow-up Allowed','Experience','Status','Date Queried'];
+    const rows = agents.map(a => [a.name, a.fit, a.agency, a.genres, a.lookingFor, a.bioUrl, a.requirements, a.method, a.methodUrl, a.timeframe, a.writers, a.notes, a.previouslyQueried, a.followUpAllowed, a.experience, a.status, a.dateQueried].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
     const csv = [headers.join(','), ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);

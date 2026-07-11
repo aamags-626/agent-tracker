@@ -13,14 +13,14 @@ This project exists to help Al get *Shamediary* represented. The work is: drafti
 ## The Book
 
 **Title:** *Shamediary*
-**Form:** Fragmented, essayistic autofiction / literary memoir. Non-linear. Short titled sections. Uses found objects (police report, letters, disbarment doc, postcards) as structural anchors.
+**Form:** Fragmented, essayistic literary memoir. Non-linear. Short titled sections. Uses found objects (police report, letters, disbarment doc, postcards) as structural anchors.
 **Length:** ~65–70k words (estimated)
 
 **What it's about:** Exploring the body, death, and grief in a constellation of fragments. Queer and queerying — about avoidance and investigation. A narrator peeling back layers of self through two defining experiences: her father's death (at 17 — he fell drunk, hit his head; her reaction was numbness, relief) and her first queer relationship (Noa).
 
 **What it's really about:** The same thing — avoidance and investigation. The book doesn't resolve, it accumulates. It sits with what can't be named cleanly.
 
-**Narrator:** Rowan (stand-in for Al). Non-linear structure moves between NOW (present/therapy), Death + [days], and deep past.
+**Narrator:** Unnamed first person ("I"). Non-linear structure moves between NOW (present/therapy), Death + [days], and deep past.
 
 **Voice:** Precise, wry, clinical at moments, quietly devastating. Never sentimental.
 
